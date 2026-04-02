@@ -244,7 +244,7 @@ export default function GameScreen({ gameData }) {
       : null;
 
   // --- Show drop zones when dragging ---
-  const showDropZones = isDragging || placementIndex !== null;
+  const showDropZones = canDrag || isDragging || placementIndex !== null;
 
   // --- Game Over screen ---
   if (state.winner && state.phase === PHASES.REVEAL) {
