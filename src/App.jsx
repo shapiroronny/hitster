@@ -1,13 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import RoleSelect from './components/screens/RoleSelect.jsx';
 import Lobby from './components/screens/Lobby.jsx';
 import GameScreen from './components/screens/GameScreen.jsx';
+import { createInitialState } from './state/gameState.js';
 
 const SCREENS = {
   ROLE_SELECT: 'ROLE_SELECT',
   LOBBY: 'LOBBY',
   GAME: 'GAME',
 };
+
+function noopNetwork() {
+  return { current: { broadcast() {}, sendTo() {}, getConnectedPlayerIds() { return []; }, destroy() {} } };
+}
 
 export default function App({ spotifyClientId }) {
   const [screen, setScreen] = useState(SCREENS.ROLE_SELECT);
@@ -24,23 +29,39 @@ export default function App({ spotifyClientId }) {
     setScreen(SCREENS.GAME);
   }
 
-  // Restore a saved game (host-only, no network — local single-device resume)
+  // Practice mode — single player, no Spotify, no network
+  function handlePractice() {
+    const initialState = createInitialState({
+      players: [{ id: 'host', name: 'You' }],
+      winThreshold: 10,
+      hitsterTimer: 15,
+      seed: Date.now(),
+    });
+    setGameData({
+      initialState,
+      networkRef: noopNetwork(),
+      isHost: true,
+      spotifyToken: null,
+      actionHandlerRef: { current: null },
+    });
+    setScreen(SCREENS.GAME);
+  }
+
+  // Restore a saved game
   function handleRestore(savedState) {
-    const networkRef = { current: { broadcast() {}, sendTo() {}, getConnectedPlayerIds() { return []; }, destroy() {} } };
-    const actionHandlerRef = { current: null };
     setGameData({
       initialState: savedState,
-      networkRef,
+      networkRef: noopNetwork(),
       isHost: true,
-      spotifyToken: null, // Will need to re-auth Spotify
-      actionHandlerRef,
+      spotifyToken: null,
+      actionHandlerRef: { current: null },
     });
     setScreen(SCREENS.GAME);
   }
 
   switch (screen) {
     case SCREENS.ROLE_SELECT:
-      return <RoleSelect onSelect={handleRoleSelect} onRestore={handleRestore} />;
+      return <RoleSelect onSelect={handleRoleSelect} onRestore={handleRestore} onPractice={handlePractice} />;
     case SCREENS.LOBBY:
       return (
         <Lobby

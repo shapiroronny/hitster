@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../shared/Button.jsx';
 import { loadGameState } from '../../persistence/storage.js';
 
-export default function RoleSelect({ onSelect, onRestore }) {
+export default function RoleSelect({ onSelect, onRestore, onPractice }) {
   const savedGame = loadGameState();
 
   return (
@@ -20,6 +20,9 @@ export default function RoleSelect({ onSelect, onRestore }) {
         </Button>
       )}
 
+      <Button onClick={onPractice} variant="success">
+        Practice (Solo)
+      </Button>
       <Button onClick={() => onSelect('host')}>Host New Game</Button>
       <Button onClick={() => onSelect('player')} variant="secondary">
         Join Game

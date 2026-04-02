@@ -146,15 +146,19 @@ export default function GameScreen({ gameData }) {
     myPlayer.tokens > 0;
 
   // --- Playback controls ---
+  const hasSpotify = spotifyReady && spotifyToken;
   const handlePlay = async () => {
-    if (!spotifyReady || !state.currentSong) return;
-    try {
-      await playSong(spotifyToken.accessToken, state.currentSong.sid);
-      setIsPlaying(true);
-      hostDispatch({ type: 'START_PLACING' });
-    } catch (err) {
-      console.error('Play error:', err);
+    if (!state.currentSong) return;
+    if (hasSpotify) {
+      try {
+        await playSong(spotifyToken.accessToken, state.currentSong.sid);
+        setIsPlaying(true);
+      } catch (err) {
+        console.error('Play error:', err);
+      }
     }
+    // Always transition to PLACING (even without Spotify in practice mode)
+    hostDispatch({ type: 'START_PLACING' });
   };
 
   const handlePause = async () => {
@@ -276,8 +280,15 @@ export default function GameScreen({ gameData }) {
       {/* Player list */}
       <PlayerList players={state.players} currentPlayerIndex={state.currentPlayerIndex} />
 
-      {/* Playback controls (host only, LISTENING phase) */}
-      {isHost && (state.phase === PHASES.LISTENING || state.phase === PHASES.PLACING) && (
+      {/* Playback controls (host only, LISTENING/PLACING phase) */}
+      {isHost && state.phase === PHASES.LISTENING && (
+        <div className="flex justify-center py-2 px-4 shrink-0">
+          <Button variant="primary" onClick={handlePlay} className="!max-w-[200px]">
+            {hasSpotify ? 'Play Song' : 'Next Song'}
+          </Button>
+        </div>
+      )}
+      {isHost && hasSpotify && state.phase === PHASES.PLACING && (
         <PlaybackControls
           onPlay={handlePlay}
           onPause={handlePause}
