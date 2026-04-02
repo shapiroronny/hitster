@@ -1,9 +1,14 @@
 import React from 'react';
 import Button from '../shared/Button.jsx';
-import { loadGameState } from '../../persistence/storage.js';
+import { loadGameState, clearGameState } from '../../persistence/storage.js';
 
 export default function RoleSelect({ onSelect, onRestore, onPractice }) {
-  const savedGame = loadGameState();
+  const [savedGame, setSavedGame] = React.useState(() => loadGameState());
+
+  function handleDelete() {
+    clearGameState();
+    setSavedGame(null);
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-5 p-6 bg-gradient-to-b from-[#0a0a1a] to-[#1a1a3e]">
@@ -15,9 +20,17 @@ export default function RoleSelect({ onSelect, onRestore, onPractice }) {
       </p>
 
       {savedGame && (
-        <Button onClick={() => onRestore(savedGame)} variant="success" className="mb-2">
-          Resume Game ({savedGame.players?.length} players, round {savedGame.drawIndex || '?'})
-        </Button>
+        <div className="flex flex-col items-center gap-2 mb-2 w-full max-w-xs">
+          <Button onClick={() => onRestore(savedGame)} variant="success">
+            Resume Game ({savedGame.players?.length} players)
+          </Button>
+          <button
+            onClick={handleDelete}
+            className="text-sm text-white/30 hover:text-[#e63946] transition-colors"
+          >
+            Delete saved game
+          </button>
+        </div>
       )}
 
       {onPractice && (

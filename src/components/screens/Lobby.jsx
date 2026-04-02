@@ -6,7 +6,7 @@ import { createPeerPlayer } from '../../network/peerPlayer.js';
 import { createInitialState } from '../../state/gameState.js';
 import { startSpotifyAuth, handleSpotifyCallback } from '../../spotify/auth.js';
 
-function HostLobby({ spotifyClientId, onGameStart }) {
+function HostLobby({ spotifyClientId, onGameStart, practice }) {
   const [name, setName] = useState('');
   const [nameConfirmed, setNameConfirmed] = useState(false);
   const [gameCode] = useState(() => generateGameCode());
@@ -72,7 +72,9 @@ function HostLobby({ spotifyClientId, onGameStart }) {
 
   function handleStartGame() {
     const hostPlayer = { id: 'host', name: name.trim() };
-    const allPlayers = [hostPlayer, ...players];
+    const allPlayers = practice
+      ? [hostPlayer, { id: 'p2', name: 'Player 2' }]
+      : [hostPlayer, ...players];
     const seed = Date.now();
 
     const initialState = createInitialState({
@@ -97,7 +99,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
     });
   }
 
-  const canStart = nameConfirmed && players.length >= 1 && spotifyToken !== null;
+  const canStart = nameConfirmed && (practice || players.length >= 1) && spotifyToken !== null;
 
   if (!nameConfirmed) {
     return (
@@ -215,7 +217,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
       {!canStart && (
         <p className="text-sm text-[#a8dadc] mt-2">
           {!spotifyToken && 'Connect Spotify. '}
-          {players.length < 1 && 'Need at least 1 other player.'}
+          {!practice && players.length < 1 && 'Need at least 1 other player.'}
         </p>
       )}
     </div>
@@ -331,9 +333,9 @@ function PlayerLobby({ onGameStart }) {
   );
 }
 
-export default function Lobby({ role, spotifyClientId, onGameStart }) {
+export default function Lobby({ role, spotifyClientId, onGameStart, practice }) {
   if (role === 'host') {
-    return <HostLobby spotifyClientId={spotifyClientId} onGameStart={onGameStart} />;
+    return <HostLobby spotifyClientId={spotifyClientId} onGameStart={onGameStart} practice={practice} />;
   }
   return <PlayerLobby onGameStart={onGameStart} />;
 }

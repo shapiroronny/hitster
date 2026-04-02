@@ -254,8 +254,8 @@ export default function GameScreen({ gameData }) {
         <PlaybackControls onToggle={handlePlayToggle} isPlaying={isPlaying} />
       )}
 
-      {/* Draggable mystery card — hide when already placed (card shows in timeline instead) */}
-      {(isDragging || (canDrag && placementIndex === null)) && (
+      {/* Draggable mystery card — always show when canDrag so user can re-drag */}
+      {(isDragging || canDrag) && (
         <DraggableMysteryCard isDragging={isDragging} dragPos={dragPos} handlers={handlers} />
       )}
 
@@ -271,13 +271,10 @@ export default function GameScreen({ gameData }) {
         />
       </div>
 
-      {/* Lock in + change buttons */}
+      {/* Lock in button */}
       {placementIndex !== null && !isDragging && isMyTurn && !hitsterNeedsPlacement && (
-        <div className="flex justify-center gap-3 py-2 px-4 shrink-0">
-          <Button variant="ghost" onClick={() => setPlacementIndex(null)} className="!max-w-[140px] !py-2.5 !text-sm">
-            Change
-          </Button>
-          <Button variant="primary" onClick={handleLockIn} className="!max-w-[160px]">
+        <div className="flex justify-center py-2 px-4 shrink-0">
+          <Button variant="primary" onClick={handleLockIn} className="!max-w-[200px]">
             Lock In
           </Button>
         </div>

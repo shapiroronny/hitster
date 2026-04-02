@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RoleSelect from './components/screens/RoleSelect.jsx';
 import Lobby from './components/screens/Lobby.jsx';
 import GameScreen from './components/screens/GameScreen.jsx';
-import { createInitialState } from './state/gameState.js';
+import { loadGameState } from './persistence/storage.js';
 
 const SCREENS = {
   ROLE_SELECT: 'ROLE_SELECT',
@@ -18,9 +18,19 @@ export default function App({ spotifyClientId }) {
   const [screen, setScreen] = useState(SCREENS.ROLE_SELECT);
   const [role, setRole] = useState(null);
   const [gameData, setGameData] = useState(null);
+  const [practice, setPractice] = useState(false);
+
+  const isTestMode = new URLSearchParams(window.location.search).has('test');
 
   function handleRoleSelect(selectedRole) {
     setRole(selectedRole);
+    setPractice(false);
+    setScreen(SCREENS.LOBBY);
+  }
+
+  function handlePractice() {
+    setRole('host');
+    setPractice(true);
     setScreen(SCREENS.LOBBY);
   }
 
@@ -29,27 +39,6 @@ export default function App({ spotifyClientId }) {
     setScreen(SCREENS.GAME);
   }
 
-  const isTestMode = new URLSearchParams(window.location.search).has('test');
-
-  // Practice mode — 2 fake players, no Spotify, no network. Simulates real game.
-  function handlePractice() {
-    const initialState = createInitialState({
-      players: [{ id: 'host', name: 'Player 1' }, { id: 'p2', name: 'Player 2' }],
-      winThreshold: 10,
-      hitsterTimer: 15,
-      seed: Date.now(),
-    });
-    setGameData({
-      initialState,
-      networkRef: noopNetwork(),
-      isHost: true,
-      spotifyToken: null,
-      actionHandlerRef: { current: null },
-    });
-    setScreen(SCREENS.GAME);
-  }
-
-  // Restore a saved game
   function handleRestore(savedState) {
     setGameData({
       initialState: savedState,
@@ -70,6 +59,7 @@ export default function App({ spotifyClientId }) {
           role={role}
           spotifyClientId={spotifyClientId}
           onGameStart={handleGameStart}
+          practice={practice}
         />
       );
     case SCREENS.GAME:
