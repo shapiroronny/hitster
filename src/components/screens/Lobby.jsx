@@ -4,29 +4,32 @@ import { generateGameCode } from '../../utils/gameCode.js';
 import { createPeerHost } from '../../network/peerHost.js';
 import { createPeerPlayer } from '../../network/peerPlayer.js';
 import { createInitialState } from '../../state/gameState.js';
-import { startSpotifyAuth, handleSpotifyCallback } from '../../spotify/auth.js';
+import { startSpotifyAuth, getOrRefreshToken, loadLobbyState, saveLobbyState } from '../../spotify/auth.js';
 
 function HostLobby({ spotifyClientId, onGameStart, practice }) {
-  const [name, setName] = useState('');
-  const [nameConfirmed, setNameConfirmed] = useState(false);
-  const [gameCode] = useState(() => generateGameCode());
+  // Restore lobby state after OAuth redirect
+  const restored = React.useMemo(() => loadLobbyState(), []);
+
+  const [name, setName] = useState(restored?.name || '');
+  const [nameConfirmed, setNameConfirmed] = useState(!!restored?.name);
+  const [gameCode] = useState(() => restored?.gameCode || generateGameCode());
   const [players, setPlayers] = useState([]);
   const [spotifyToken, setSpotifyToken] = useState(null);
-  const [winThreshold, setWinThreshold] = useState(10);
-  const [hitsterTimer, setHitsterTimer] = useState(15);
+  const [winThreshold, setWinThreshold] = useState(restored?.winThreshold || 10);
+  const [hitsterTimer, setHitsterTimer] = useState(restored?.hitsterTimer || 15);
   const networkRef = useRef(null);
   const actionHandlerRef = useRef(null);
 
-  // Catch Spotify OAuth callback on page load
+  // On mount: try to get Spotify token (cached, refreshed, or from OAuth callback)
   useEffect(() => {
     if (!spotifyClientId) return;
     const redirectUri = window.location.origin + window.location.pathname;
-    handleSpotifyCallback(spotifyClientId, redirectUri)
+    getOrRefreshToken(spotifyClientId, redirectUri)
       .then((token) => {
         if (token) setSpotifyToken(token);
       })
       .catch((err) => {
-        console.error('Spotify callback error:', err);
+        console.error('Spotify auth error:', err);
       });
   }, [spotifyClientId]);
 
@@ -67,7 +70,13 @@ function HostLobby({ spotifyClientId, onGameStart, practice }) {
   function handleConnectSpotify() {
     if (!spotifyClientId) return;
     const redirectUri = window.location.origin + window.location.pathname;
-    startSpotifyAuth(spotifyClientId, redirectUri);
+    // Save lobby state so it survives the OAuth redirect
+    startSpotifyAuth(spotifyClientId, redirectUri, {
+      name: name.trim(),
+      gameCode,
+      winThreshold,
+      hitsterTimer,
+    });
   }
 
   function handleStartGame() {
