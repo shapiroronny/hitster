@@ -176,7 +176,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
     const seed = Date.now();
 
     const initialState = createInitialState({
-      players: allPlayers.map((p) => p.id),
+      players: allPlayers,
       winThreshold: Number(winThreshold),
       hitsterTimer: Number(hitsterTimer),
       seed,

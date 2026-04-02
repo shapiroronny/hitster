@@ -15,10 +15,12 @@ export function createInitialState({ players, winThreshold, hitsterTimer, seed }
   // We need to draw 1 anchor per player + 1 currentSong
   const picker = createSongPicker(songs, seed, 0);
 
-  const playerObjects = players.map((id) => {
+  // players is an array of { id, name } objects
+  const playerObjects = players.map((p) => {
     const anchor = picker.draw();
     return {
-      id,
+      id: p.id,
+      name: p.name,
       tokens: 2,
       timeline: [anchor],
     };

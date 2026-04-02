@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createInitialState, gameReducer, PHASES } from '../src/state/gameState.js';
 
 const TEST_SEED = 42;
-const TEST_PLAYERS = ['Alice', 'Bob'];
+const TEST_PLAYERS = [{ id: 'Alice', name: 'Alice' }, { id: 'Bob', name: 'Bob' }];
 const TEST_WIN_THRESHOLD = 5;
 const TEST_HITSTER_TIMER = 30;
 

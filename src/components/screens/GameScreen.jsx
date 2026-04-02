@@ -51,7 +51,7 @@ export default function GameScreen({ gameData }) {
   // Determine identity
   const myId = isHost ? 'host' : networkRef.current?.getPlayerId();
   const currentPlayer = state.players[state.currentPlayerIndex];
-  const currentPlayerName = currentPlayer?.id ?? '';
+  const currentPlayerName = currentPlayer?.name ?? '';
   const isMyTurn = currentPlayer?.id === myId;
   const myPlayerIndex = state.players.findIndex((p) => p.id === myId);
   const myPlayer = myPlayerIndex >= 0 ? state.players[myPlayerIndex] : null;
@@ -252,7 +252,7 @@ export default function GameScreen({ gameData }) {
     return (
       <div style={screenStyle}>
         <GameOver
-          winnerName={winnerPlayer?.id ?? state.winner}
+          winnerName={winnerPlayer?.name ?? state.winner}
           onContinue={isHost ? handleKeepPlaying : undefined}
         />
         {revealResultData && <RevealResult revealResult={revealResultData} />}
