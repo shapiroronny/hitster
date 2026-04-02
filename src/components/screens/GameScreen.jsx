@@ -281,20 +281,23 @@ export default function GameScreen({ gameData }) {
       <PlayerList players={state.players} currentPlayerIndex={state.currentPlayerIndex} />
 
       {/* Playback controls (host only, LISTENING/PLACING phase) */}
-      {isHost && state.phase === PHASES.LISTENING && (
-        <div className="flex justify-center py-2 px-4 shrink-0">
-          <Button variant="primary" onClick={handlePlay} className="!max-w-[200px]">
-            {hasSpotify ? 'Play Song' : 'Next Song'}
-          </Button>
-        </div>
-      )}
-      {isHost && hasSpotify && state.phase === PHASES.PLACING && (
-        <PlaybackControls
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onResume={handleResume}
-          isPlaying={isPlaying}
-        />
+      {isHost && (state.phase === PHASES.LISTENING || state.phase === PHASES.PLACING) && (
+        hasSpotify ? (
+          <PlaybackControls
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onResume={handleResume}
+            isPlaying={isPlaying}
+          />
+        ) : (
+          state.phase === PHASES.LISTENING && (
+            <div className="flex justify-center py-2 px-4 shrink-0">
+              <Button variant="primary" onClick={handlePlay} className="!max-w-[200px]">
+                Next Song
+              </Button>
+            </div>
+          )
+        )
       )}
 
       {/* Draggable mystery card */}
