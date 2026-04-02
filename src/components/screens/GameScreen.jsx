@@ -101,17 +101,19 @@ export default function GameScreen({ gameData }) {
   }, [isHost, state.phase, state.hitsterTimer, isSoloGame]);
 
   // --- Drag and drop ---
-  const handleDrop = useCallback((index) => { setPlacementIndex(index); }, []);
+  const handleDrop = useCallback((index) => {
+    setPlacementIndex(index);
+  }, []);
   const { isDragging, dragPos, activeDropZone, handlers } = useDragToTimeline(dropZoneRefs, handleDrop);
 
   // --- Timeline ---
   const timelineSongs = currentPlayer ? currentPlayer.timeline : [];
 
-  // --- Can drag ---
+  // --- Can drag (allow re-drag even after placement to change position) ---
   const isHitster = state.hitster && state.hitster.playerId === myId;
   const hitsterNeedsPlacement = isHitster && state.hitster.insertIndex === null;
   const canDrag =
-    ((isMyTurn && (state.phase === PHASES.LISTENING || state.phase === PHASES.PLACING) && placementIndex === null) ||
+    ((isMyTurn && (state.phase === PHASES.LISTENING || state.phase === PHASES.PLACING)) ||
       (hitsterNeedsPlacement && state.phase === PHASES.HITSTER_WINDOW)) &&
     !isDragging;
 
@@ -257,8 +259,8 @@ export default function GameScreen({ gameData }) {
         <PlaybackControls onToggle={handlePlayToggle} isPlaying={isPlaying} />
       )}
 
-      {/* Draggable mystery card */}
-      {(canDrag || isDragging) && (
+      {/* Draggable mystery card — hide when already placed (card shows in timeline instead) */}
+      {(isDragging || (canDrag && placementIndex === null)) && (
         <DraggableMysteryCard isDragging={isDragging} dragPos={dragPos} handlers={handlers} />
       )}
 
@@ -274,10 +276,13 @@ export default function GameScreen({ gameData }) {
         />
       </div>
 
-      {/* Lock in button */}
+      {/* Lock in + change buttons */}
       {placementIndex !== null && !isDragging && isMyTurn && !hitsterNeedsPlacement && (
-        <div className="flex justify-center py-2 px-4 shrink-0">
-          <Button variant="primary" onClick={handleLockIn} className="!max-w-[200px]">
+        <div className="flex justify-center gap-3 py-2 px-4 shrink-0">
+          <Button variant="ghost" onClick={() => setPlacementIndex(null)} className="!max-w-[140px] !py-2.5 !text-sm">
+            Change
+          </Button>
+          <Button variant="primary" onClick={handleLockIn} className="!max-w-[160px]">
             Lock In
           </Button>
         </div>
