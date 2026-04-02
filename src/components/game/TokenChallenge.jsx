@@ -3,22 +3,22 @@ import Button from '../shared/Button.jsx';
 
 export default function TokenChallenge({ playerName, onAward }) {
   return (
-    <div style={{ textAlign: 'center', padding: '12px 16px' }}>
-      <p style={{ color: '#eee', fontSize: '1rem', marginBottom: 12 }}>
+    <div className="text-center py-3 px-4">
+      <p className="text-[#eee] text-base mb-3">
         Did {playerName} name the song?
       </p>
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+      <div className="flex gap-2.5 justify-center">
         <Button
           onClick={() => onAward(true)}
-          variant="primary"
-          style={{ maxWidth: 140, background: '#2ecc71' }}
+          variant="success"
+          className="!max-w-[140px]"
         >
           Yes
         </Button>
         <Button
           onClick={() => onAward(false)}
           variant="secondary"
-          style={{ maxWidth: 140 }}
+          className="!max-w-[140px]"
         >
           No
         </Button>

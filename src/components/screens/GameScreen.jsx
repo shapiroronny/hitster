@@ -15,23 +15,6 @@ import RevealResult from '../game/RevealResult.jsx';
 import GameOver from './GameOver.jsx';
 import Button from '../shared/Button.jsx';
 
-const screenStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  background: 'linear-gradient(180deg, #0a0a1a 0%, #12122e 100%)',
-  color: '#f0f0f0',
-  overflow: 'hidden',
-};
-
-const centerRowStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  padding: '8px 16px',
-  gap: 10,
-  flexShrink: 0,
-};
-
 export default function GameScreen({ gameData }) {
   const { initialState, networkRef, isHost, spotifyToken, actionHandlerRef, stateUpdateRef } = gameData;
 
@@ -271,7 +254,7 @@ export default function GameScreen({ gameData }) {
   if (state.winner && state.phase === PHASES.REVEAL) {
     const winnerPlayer = state.players.find((p) => p.id === state.winner);
     return (
-      <div style={screenStyle}>
+      <div className="flex flex-col h-full bg-gradient-to-b from-[#0a0a1a] to-[#12122e] text-[#f0f0f0] overflow-hidden">
         <GameOver
           winnerName={winnerPlayer?.name ?? state.winner}
           onContinue={isHost ? handleKeepPlaying : undefined}
@@ -282,7 +265,7 @@ export default function GameScreen({ gameData }) {
   }
 
   return (
-    <div style={screenStyle}>
+    <div className="flex flex-col h-full bg-gradient-to-b from-[#0a0a1a] to-[#12122e] text-[#f0f0f0] overflow-hidden">
       {/* Phase indicator */}
       <PhaseIndicator
         phase={state.phase}
@@ -313,7 +296,7 @@ export default function GameScreen({ gameData }) {
       )}
 
       {/* Timeline */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+      <div className="flex-1 overflow-y-auto px-2">
         <Timeline
           songs={timelineSongs}
           showDropZones={showDropZones}
@@ -332,8 +315,8 @@ export default function GameScreen({ gameData }) {
 
       {/* Lock in button (current player placing) */}
       {placementIndex !== null && !isDragging && isMyTurn && !hitsterNeedsPlacement && (
-        <div style={centerRowStyle}>
-          <Button variant="primary" onClick={handleLockIn} style={{ maxWidth: 200 }}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="primary" onClick={handleLockIn} className="!max-w-[200px]">
             Lock In
           </Button>
         </div>
@@ -341,8 +324,8 @@ export default function GameScreen({ gameData }) {
 
       {/* Hitster lock in button */}
       {placementIndex !== null && !isDragging && hitsterNeedsPlacement && (
-        <div style={centerRowStyle}>
-          <Button variant="primary" onClick={handleHitsterLockIn} style={{ maxWidth: 200 }}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="primary" onClick={handleHitsterLockIn} className="!max-w-[200px]">
             Lock In (Hitster)
           </Button>
         </div>
@@ -350,7 +333,7 @@ export default function GameScreen({ gameData }) {
 
       {/* Hitster button (non-current players, HITSTER_WINDOW phase) */}
       {canHitster && (
-        <div style={centerRowStyle}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
           <HitsterButton
             timerSeconds={state.hitsterTimer}
             canHitster={canHitster}
@@ -362,8 +345,8 @@ export default function GameScreen({ gameData }) {
 
       {/* Skip turn button (current player, LISTENING phase, has tokens) */}
       {isMyTurn && state.phase === PHASES.LISTENING && myPlayer && myPlayer.tokens > 0 && (
-        <div style={centerRowStyle}>
-          <Button variant="ghost" onClick={handleSkipTurn} style={{ maxWidth: 200 }}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="ghost" onClick={handleSkipTurn} className="!max-w-[200px]">
             Skip Turn (-1 token)
           </Button>
         </div>
@@ -371,8 +354,8 @@ export default function GameScreen({ gameData }) {
 
       {/* Host: Reveal Answer button (HITSTER_WINDOW phase) */}
       {isHost && state.phase === PHASES.HITSTER_WINDOW && (
-        <div style={centerRowStyle}>
-          <Button variant="primary" onClick={handleReveal} style={{ maxWidth: 200 }}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="primary" onClick={handleReveal} className="!max-w-[200px]">
             Reveal Answer
           </Button>
         </div>
@@ -393,8 +376,8 @@ export default function GameScreen({ gameData }) {
 
       {/* Host: Next Turn button (TOKEN_CHALLENGE phase) */}
       {isHost && state.phase === PHASES.TOKEN_CHALLENGE && (
-        <div style={centerRowStyle}>
-          <Button variant="primary" onClick={handleNextTurn} style={{ maxWidth: 200 }}>
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="primary" onClick={handleNextTurn} className="!max-w-[200px]">
             Next Turn
           </Button>
         </div>

@@ -6,106 +6,6 @@ import { createPeerPlayer } from '../../network/peerPlayer.js';
 import { createInitialState } from '../../state/gameState.js';
 import { startSpotifyAuth, handleSpotifyCallback } from '../../spotify/auth.js';
 
-const containerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  minHeight: '100vh',
-  background: '#0f3460',
-  padding: '24px',
-  boxSizing: 'border-box',
-  color: '#eee',
-};
-
-const headingStyle = {
-  fontSize: '1.8rem',
-  fontWeight: 800,
-  color: '#e63946',
-  margin: '0 0 24px 0',
-};
-
-const inputStyle = {
-  fontSize: '1.1rem',
-  padding: '14px 16px',
-  borderRadius: '10px',
-  border: '2px solid #457b9d',
-  background: '#16213e',
-  color: '#eee',
-  width: '100%',
-  maxWidth: '320px',
-  boxSizing: 'border-box',
-  outline: 'none',
-};
-
-const sectionStyle = {
-  width: '100%',
-  maxWidth: '380px',
-  marginBottom: '24px',
-};
-
-const labelStyle = {
-  display: 'block',
-  fontSize: '0.9rem',
-  color: '#a8dadc',
-  marginBottom: '8px',
-  fontWeight: 600,
-};
-
-const gameCodeStyle = {
-  fontSize: '2.5rem',
-  fontWeight: 800,
-  letterSpacing: '0.2em',
-  color: '#e63946',
-  background: '#16213e',
-  borderRadius: '12px',
-  padding: '16px 24px',
-  textAlign: 'center',
-  margin: '0 0 24px 0',
-  wordBreak: 'break-all',
-};
-
-const playerListStyle = {
-  listStyle: 'none',
-  padding: 0,
-  margin: 0,
-  width: '100%',
-};
-
-const playerItemStyle = {
-  padding: '10px 14px',
-  background: '#16213e',
-  borderRadius: '8px',
-  marginBottom: '8px',
-  fontSize: '1rem',
-  color: '#eee',
-};
-
-const settingsRowStyle = {
-  display: 'flex',
-  gap: '16px',
-  width: '100%',
-  maxWidth: '320px',
-};
-
-const settingsFieldStyle = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px',
-};
-
-const smallInputStyle = {
-  ...inputStyle,
-  maxWidth: '100%',
-  padding: '10px 12px',
-};
-
-const statusStyle = {
-  fontSize: '0.9rem',
-  color: '#a8dadc',
-  margin: '8px 0 0 0',
-};
-
 function HostLobby({ spotifyClientId, onGameStart }) {
   const [name, setName] = useState('');
   const [nameConfirmed, setNameConfirmed] = useState(false);
@@ -200,13 +100,13 @@ function HostLobby({ spotifyClientId, onGameStart }) {
 
   if (!nameConfirmed) {
     return (
-      <div style={containerStyle}>
-        <h1 style={headingStyle}>Host a Game</h1>
-        <div style={sectionStyle}>
-          <label style={labelStyle} htmlFor="host-name">Your display name</label>
+      <div className="flex flex-col items-center min-h-screen bg-[#0f3460] p-6 text-[#eee]">
+        <h1 className="text-3xl font-extrabold text-[#e63946] mb-6">Host a Game</h1>
+        <div className="w-full max-w-[380px] mb-6">
+          <label className="block text-sm text-[#a8dadc] mb-2 font-semibold" htmlFor="host-name">Your display name</label>
           <input
             id="host-name"
-            style={inputStyle}
+            className="text-lg py-3.5 px-4 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full max-w-xs outline-none"
             type="text"
             placeholder="Enter your name"
             value={name}
@@ -229,40 +129,42 @@ function HostLobby({ spotifyClientId, onGameStart }) {
   const allDisplayedPlayers = [{ id: 'host', name: name.trim() + ' (you)' }, ...players];
 
   return (
-    <div style={containerStyle}>
-      <h1 style={headingStyle}>Host a Game</h1>
+    <div className="flex flex-col items-center min-h-screen bg-[#0f3460] p-6 text-[#eee]">
+      <h1 className="text-3xl font-extrabold text-[#e63946] mb-6">Host a Game</h1>
 
-      <div style={sectionStyle}>
-        <div style={labelStyle}>Game Code</div>
-        <div style={gameCodeStyle}>{gameCode}</div>
+      <div className="w-full max-w-[380px] mb-6">
+        <div className="block text-sm text-[#a8dadc] mb-2 font-semibold">Game Code</div>
+        <div className="text-4xl font-extrabold tracking-[0.2em] text-[#e63946] bg-[#16213e] rounded-xl py-4 px-6 text-center mb-6 break-all">
+          {gameCode}
+        </div>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={labelStyle}>Spotify</div>
+      <div className="w-full max-w-[380px] mb-6">
+        <div className="block text-sm text-[#a8dadc] mb-2 font-semibold">Spotify</div>
         {spotifyToken ? (
-          <p style={{ ...statusStyle, color: '#57cc99' }}>Spotify connected</p>
+          <p className="text-sm text-[#57cc99] mt-2">Spotify connected</p>
         ) : (
           <>
             <Button variant="secondary" onClick={handleConnectSpotify} disabled={!spotifyClientId}>
               Connect Spotify
             </Button>
             {!spotifyClientId && (
-              <p style={statusStyle}>No Spotify client ID configured.</p>
+              <p className="text-sm text-[#a8dadc] mt-2">No Spotify client ID configured.</p>
             )}
           </>
         )}
       </div>
 
-      <div style={sectionStyle}>
-        <div style={labelStyle}>Game Settings</div>
-        <div style={settingsRowStyle}>
-          <div style={settingsFieldStyle}>
-            <label style={{ ...labelStyle, margin: 0 }} htmlFor="win-threshold">
+      <div className="w-full max-w-[380px] mb-6">
+        <div className="block text-sm text-[#a8dadc] mb-2 font-semibold">Game Settings</div>
+        <div className="flex gap-4 w-full max-w-xs">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-sm text-[#a8dadc] font-semibold" htmlFor="win-threshold">
               Win at (songs)
             </label>
             <input
               id="win-threshold"
-              style={smallInputStyle}
+              className="text-lg py-2.5 px-3 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full outline-none"
               type="number"
               min={3}
               max={30}
@@ -270,13 +172,13 @@ function HostLobby({ spotifyClientId, onGameStart }) {
               onChange={(e) => setWinThreshold(e.target.value)}
             />
           </div>
-          <div style={settingsFieldStyle}>
-            <label style={{ ...labelStyle, margin: 0 }} htmlFor="hitster-timer">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-sm text-[#a8dadc] font-semibold" htmlFor="hitster-timer">
               Hitster timer (s)
             </label>
             <input
               id="hitster-timer"
-              style={smallInputStyle}
+              className="text-lg py-2.5 px-3 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full outline-none"
               type="number"
               min={5}
               max={60}
@@ -287,17 +189,17 @@ function HostLobby({ spotifyClientId, onGameStart }) {
         </div>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={labelStyle}>Players ({allDisplayedPlayers.length})</div>
-        <ul style={playerListStyle}>
+      <div className="w-full max-w-[380px] mb-6">
+        <div className="block text-sm text-[#a8dadc] mb-2 font-semibold">Players ({allDisplayedPlayers.length})</div>
+        <ul className="list-none p-0 m-0 w-full">
           {allDisplayedPlayers.map((p) => (
-            <li key={p.id} style={playerItemStyle}>
+            <li key={p.id} className="py-2.5 px-3.5 bg-[#16213e] rounded-lg mb-2 text-base text-[#eee]">
               {p.name}
             </li>
           ))}
         </ul>
         {players.length === 0 && (
-          <p style={statusStyle}>Waiting for players to join...</p>
+          <p className="text-sm text-[#a8dadc] mt-2">Waiting for players to join...</p>
         )}
       </div>
 
@@ -305,12 +207,12 @@ function HostLobby({ spotifyClientId, onGameStart }) {
         variant="primary"
         disabled={!canStart}
         onClick={handleStartGame}
-        style={{ marginTop: '8px' }}
+        className="mt-2"
       >
         Start Game
       </Button>
       {!canStart && (
-        <p style={statusStyle}>
+        <p className="text-sm text-[#a8dadc] mt-2">
           {!spotifyToken && 'Connect Spotify. '}
           {players.length < 1 && 'Need at least 1 other player.'}
         </p>
@@ -363,9 +265,9 @@ function PlayerLobby({ onGameStart }) {
 
   if (joined) {
     return (
-      <div style={containerStyle}>
-        <h1 style={headingStyle}>Join a Game</h1>
-        <p style={{ fontSize: '1.1rem', color: '#a8dadc', textAlign: 'center' }}>
+      <div className="flex flex-col items-center min-h-screen bg-[#0f3460] p-6 text-[#eee]">
+        <h1 className="text-3xl font-extrabold text-[#e63946] mb-6">Join a Game</h1>
+        <p className="text-lg text-[#a8dadc] text-center">
           Waiting for host to start...
         </p>
       </div>
@@ -373,14 +275,14 @@ function PlayerLobby({ onGameStart }) {
   }
 
   return (
-    <div style={containerStyle}>
-      <h1 style={headingStyle}>Join a Game</h1>
+    <div className="flex flex-col items-center min-h-screen bg-[#0f3460] p-6 text-[#eee]">
+      <h1 className="text-3xl font-extrabold text-[#e63946] mb-6">Join a Game</h1>
 
-      <div style={sectionStyle}>
-        <label style={labelStyle} htmlFor="player-name">Your display name</label>
+      <div className="w-full max-w-[380px] mb-6">
+        <label className="block text-sm text-[#a8dadc] mb-2 font-semibold" htmlFor="player-name">Your display name</label>
         <input
           id="player-name"
-          style={inputStyle}
+          className="text-lg py-3.5 px-4 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full max-w-xs outline-none"
           type="text"
           placeholder="Enter your name"
           value={name}
@@ -389,11 +291,11 @@ function PlayerLobby({ onGameStart }) {
         />
       </div>
 
-      <div style={sectionStyle}>
-        <label style={labelStyle} htmlFor="game-code">Game code</label>
+      <div className="w-full max-w-[380px] mb-6">
+        <label className="block text-sm text-[#a8dadc] mb-2 font-semibold" htmlFor="game-code">Game code</label>
         <input
           id="game-code"
-          style={{ ...inputStyle, textTransform: 'uppercase', letterSpacing: '0.15em' }}
+          className="text-lg py-3.5 px-4 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full max-w-xs outline-none uppercase tracking-[0.15em]"
           type="text"
           placeholder="XXXXXX"
           value={code}
@@ -404,7 +306,7 @@ function PlayerLobby({ onGameStart }) {
       </div>
 
       {error && (
-        <p style={{ ...statusStyle, color: '#e63946', marginBottom: '12px' }}>{error}</p>
+        <p className="text-sm text-[#e63946] mb-3">{error}</p>
       )}
 
       <Button

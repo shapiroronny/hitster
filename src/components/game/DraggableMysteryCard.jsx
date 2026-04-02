@@ -2,32 +2,28 @@ import React from 'react';
 import { SongCard } from './SongCard';
 
 export function DraggableMysteryCard({ isDragging, dragPos, handlers }) {
-  // Single element — style changes, DOM doesn't swap
-  const style = isDragging
-    ? {
-        position: 'fixed',
-        left: dragPos.x - 45,
-        top: dragPos.y - 50,
-        zIndex: 1000,
-        pointerEvents: 'none',
-        transform: 'scale(1.1)',
-        transition: 'transform 0.05s',
-        filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))',
-      }
-    : {
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '12px 0',
-        touchAction: 'none',
-        cursor: 'grab',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-      };
+  if (isDragging) {
+    // Keep inline style for dynamic fixed positioning during drag
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          left: dragPos.x - 45,
+          top: dragPos.y - 50,
+          zIndex: 1000,
+        }}
+        className="pointer-events-none scale-110 transition-transform duration-[50ms] drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]"
+      >
+        <SongCard isBack />
+      </div>
+    );
+  }
 
-  // When dragging, handlers are on document (via hook).
-  // When not dragging, handlers are on this element to initiate drag.
   return (
-    <div style={style} {...(isDragging ? {} : handlers)}>
+    <div
+      className="flex justify-center py-3 touch-none cursor-grab select-none"
+      {...handlers}
+    >
       <SongCard isBack />
     </div>
   );

@@ -1,77 +1,39 @@
 import React from 'react';
 
-const baseCard = {
-  display: 'inline-flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minWidth: 85,
-  minHeight: 90,
-  borderRadius: 12,
-  padding: '8px 10px',
-  textAlign: 'center',
-  userSelect: 'none',
-  WebkitUserSelect: 'none',
-  transition: 'transform 0.15s, box-shadow 0.15s',
-};
+const baseCard = 'inline-flex flex-col items-center justify-center min-w-[85px] min-h-[90px] rounded-xl py-2 px-2.5 text-center select-none transition-all duration-150';
 
 export function SongCard({ song, isBack, result }) {
   if (isBack) {
     return (
-      <div
-        style={{
-          ...baseCard,
-          background: 'linear-gradient(135deg, #e63946 0%, #9d4edd 100%)',
-          border: '2px solid rgba(255,255,255,0.15)',
-          boxShadow: '0 4px 16px rgba(157,78,221,0.3)',
-        }}
-      >
-        <span style={{ fontSize: '1.8rem' }}>?</span>
-        <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+      <div className={`${baseCard} bg-gradient-to-br from-[#e63946] to-[#9d4edd] border-2 border-white/15 shadow-lg shadow-[#9d4edd]/30`}>
+        <span className="text-3xl">?</span>
+        <span className="text-[0.6rem] text-white/60 mt-0.5">
           DRAG ME
         </span>
       </div>
     );
   }
 
-  let borderColor = 'rgba(255,255,255,0.1)';
-  let boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-  let bg = 'linear-gradient(180deg, #1e1e3a 0%, #151530 100%)';
+  let borderClass = 'border-white/10';
+  let shadowClass = 'shadow-md shadow-black/20';
 
   if (result === 'correct') {
-    borderColor = '#2ecc71';
-    boxShadow = '0 0 16px rgba(46,204,113,0.4)';
+    borderClass = 'border-[#2ecc71]';
+    shadowClass = 'shadow-lg shadow-[#2ecc71]/40';
   } else if (result === 'wrong') {
-    borderColor = '#e74c3c';
-    boxShadow = '0 0 16px rgba(231,76,60,0.4)';
+    borderClass = 'border-[#e74c3c]';
+    shadowClass = 'shadow-lg shadow-[#e74c3c]/40';
   }
 
   return (
-    <div style={{ ...baseCard, background: bg, border: `2px solid ${borderColor}`, boxShadow }}>
-      <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#fff' }}>
+    <div className={`${baseCard} bg-gradient-to-b from-[#1e1e3a] to-[#151530] border-2 ${borderClass} ${shadowClass}`}>
+      <span className="text-xl font-bold text-white">
         {song?.y}
       </span>
-      <span style={{
-        fontSize: '0.7rem',
-        color: '#ddd',
-        marginTop: 3,
-        lineHeight: 1.2,
-        maxWidth: 80,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}>
+      <span className="text-[0.7rem] text-[#ddd] mt-0.5 leading-tight max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">
         {song?.t}
       </span>
-      <span style={{
-        fontSize: '0.6rem',
-        color: '#999',
-        marginTop: 1,
-        maxWidth: 80,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}>
+      <span className="text-[0.6rem] text-white/50 mt-px max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap">
         {song?.a}
       </span>
     </div>

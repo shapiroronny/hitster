@@ -3,17 +3,8 @@ import Button from '../shared/Button.jsx';
 
 export default function GameOver({ winnerName, onContinue }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px',
-        gap: 24,
-      }}
-    >
-      <h1 style={{ color: '#eee', fontSize: '2rem', margin: 0, textAlign: 'center' }}>
+    <div className="flex flex-col items-center justify-center py-10 px-5 gap-6">
+      <h1 className="text-[#eee] text-3xl font-bold m-0 text-center">
         {winnerName} Wins!
       </h1>
       {onContinue && (

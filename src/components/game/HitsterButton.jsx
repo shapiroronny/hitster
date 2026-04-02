@@ -30,18 +30,7 @@ export default function HitsterButton({ timerSeconds, canHitster, onClaim, disab
     <button
       onClick={onClaim}
       disabled={disabled}
-      style={{
-        background: '#9d4edd',
-        color: '#fff',
-        border: 'none',
-        borderRadius: 12,
-        padding: '14px 28px',
-        fontSize: '1.1rem',
-        fontWeight: 700,
-        cursor: disabled ? 'default' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        touchAction: 'manipulation',
-      }}
+      className="bg-[#9d4edd] text-white border-none rounded-xl py-3.5 px-7 text-lg font-bold touch-manipulation transition-all hover:bg-[#8b3ecc] active:scale-95 disabled:opacity-50 disabled:cursor-default shadow-lg shadow-[#9d4edd]/30"
     >
       HITSTER! ({remaining}s)
     </button>

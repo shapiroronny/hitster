@@ -6,33 +6,16 @@ export default function RoleSelect({ onSelect, onRestore }) {
   const savedGame = loadGameState();
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      gap: 20,
-      padding: 24,
-      background: 'linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 100%)',
-    }}>
-      <h1 style={{
-        fontSize: '3.5rem',
-        fontWeight: 900,
-        letterSpacing: '0.08em',
-        background: 'linear-gradient(135deg, #e63946, #9d4edd)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        marginBottom: 4,
-      }}>
+    <div className="flex flex-col items-center justify-center h-full gap-5 p-6 bg-gradient-to-b from-[#0a0a1a] to-[#1a1a3e]">
+      <h1 className="text-6xl font-black tracking-widest bg-gradient-to-r from-[#e63946] to-[#9d4edd] bg-clip-text text-transparent mb-1">
         HITSTER
       </h1>
-      <p style={{ fontSize: '1rem', color: '#888', marginBottom: 32 }}>
+      <p className="text-base text-white/40 mb-8">
         Guess the year. Build your timeline.
       </p>
 
       {savedGame && (
-        <Button onClick={() => onRestore(savedGame)} variant="success" style={{ marginBottom: 8 }}>
+        <Button onClick={() => onRestore(savedGame)} variant="success" className="mb-2">
           Resume Game ({savedGame.players?.length} players, round {savedGame.drawIndex || '?'})
         </Button>
       )}
