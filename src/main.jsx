@@ -1,10 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import App from './App.jsx';
 import './styles/index.css';
-
-function App() {
-  return <div>Hitster loading...</div>;
-}
 
 const Hitster = {
   init({ container, spotifyClientId }) {
