@@ -180,10 +180,15 @@ export default function GameScreen({ gameData }) {
   };
 
   // --- Lock in placement ---
+  const isSoloGame = state.players.length === 1;
   const handleLockIn = () => {
     if (placementIndex === null) return;
     if (isHost) {
       hostDispatch({ type: 'LOCK_PLACEMENT', playerId: myId, insertIndex: placementIndex });
+      // Solo game: skip hitster window, go straight to reveal
+      if (isSoloGame) {
+        setTimeout(() => hostDispatch({ type: 'REVEAL' }), 300);
+      }
     } else {
       networkRef.current?.send(PLAYER_MSG.LOCK_PLACEMENT, { insertIndex: placementIndex });
     }
@@ -316,6 +321,7 @@ export default function GameScreen({ gameData }) {
           showDropZones={showDropZones}
           activeDropZone={activeDropZone}
           dropZoneRefs={dropZoneRefs}
+          placedIndex={placementIndex}
           revealedSong={
             revealResultData
               ? {
@@ -380,12 +386,21 @@ export default function GameScreen({ gameData }) {
         <RevealResult revealResult={revealResultData} />
       )}
 
-      {/* Host: Token challenge (REVEAL phase) */}
-      {isHost && state.phase === PHASES.REVEAL && (
+      {/* Host: Token challenge (REVEAL phase) — skip for solo */}
+      {isHost && state.phase === PHASES.REVEAL && !isSoloGame && (
         <TokenChallenge
           playerName={currentPlayerName}
           onAward={handleAwardToken}
         />
+      )}
+
+      {/* Solo: combined Next Turn in REVEAL phase */}
+      {isHost && state.phase === PHASES.REVEAL && isSoloGame && (
+        <div className="flex justify-center py-2 px-4 gap-2.5 shrink-0">
+          <Button variant="primary" onClick={handleNextTurn} className="!max-w-[200px]">
+            Next Turn
+          </Button>
+        </div>
       )}
 
       {/* Host: Next Turn button (TOKEN_CHALLENGE phase) */}
