@@ -16,9 +16,11 @@ export default function GameOver({ winnerName, onContinue }) {
       <h1 style={{ color: '#eee', fontSize: '2rem', margin: 0, textAlign: 'center' }}>
         {winnerName} Wins!
       </h1>
-      <Button onClick={onContinue} variant="primary">
-        Keep Playing
-      </Button>
+      {onContinue && (
+        <Button onClick={onContinue} variant="primary">
+          Keep Playing
+        </Button>
+      )}
     </div>
   );
 }

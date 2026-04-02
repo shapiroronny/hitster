@@ -46,6 +46,10 @@ export function createInitialState({ players, winThreshold, hitsterTimer, seed }
 
 export function gameReducer(state, action) {
   switch (action.type) {
+    case 'START_PLACING': {
+      return { ...state, phase: PHASES.PLACING };
+    }
+
     case 'LOCK_PLACEMENT': {
       return {
         ...state,
@@ -90,6 +94,7 @@ export function gameReducer(state, action) {
       const { playerId } = action;
       const currentPlayer = state.players[state.currentPlayerIndex];
       if (currentPlayer.id !== playerId) return state;
+      if (currentPlayer.tokens <= 0) return state;
 
       const updatedPlayers = state.players.map(p =>
         p.id === playerId ? { ...p, tokens: p.tokens - 1 } : p

@@ -82,7 +82,16 @@ export default function GameScreen({ gameData }) {
   // --- HOST: broadcast state and save on every change ---
   useEffect(() => {
     if (!isHost) return;
-    networkRef.current?.broadcast(hostState);
+    // Strip song answer (t, a, y) from currentSong before reveal phase
+    const stateToSend = hostState.phase !== PHASES.REVEAL && hostState.phase !== PHASES.TOKEN_CHALLENGE
+      ? {
+          ...hostState,
+          currentSong: hostState.currentSong
+            ? { id: hostState.currentSong.id, sid: hostState.currentSong.sid }
+            : null,
+        }
+      : hostState;
+    networkRef.current?.broadcast(stateToSend);
     saveGameState(hostState);
   }, [isHost, hostState, networkRef]);
 
@@ -103,6 +112,15 @@ export default function GameScreen({ gameData }) {
       onError: (msg) => console.error('Spotify error:', msg),
     });
   }, [isHost, spotifyToken]);
+
+  // --- HOST: auto-advance from HITSTER_WINDOW to REVEAL when timer expires ---
+  useEffect(() => {
+    if (!isHost || state.phase !== PHASES.HITSTER_WINDOW) return;
+    const timer = setTimeout(() => {
+      hostDispatch({ type: 'REVEAL' });
+    }, (state.hitsterTimer ?? 15) * 1000);
+    return () => clearTimeout(timer);
+  }, [isHost, state.phase, state.hitsterTimer]);
 
   // --- Stop song on phase change away from LISTENING ---
   useEffect(() => {
@@ -148,6 +166,7 @@ export default function GameScreen({ gameData }) {
     try {
       await playSong(spotifyToken.accessToken, state.currentSong.sid);
       setIsPlaying(true);
+      hostDispatch({ type: 'START_PLACING' });
     } catch (err) {
       console.error('Play error:', err);
     }
@@ -273,7 +292,7 @@ export default function GameScreen({ gameData }) {
       <PlayerList players={state.players} currentPlayerIndex={state.currentPlayerIndex} />
 
       {/* Playback controls (host only, LISTENING phase) */}
-      {isHost && state.phase === PHASES.LISTENING && (
+      {isHost && (state.phase === PHASES.LISTENING || state.phase === PHASES.PLACING) && (
         <PlaybackControls
           onPlay={handlePlay}
           onPause={handlePause}
