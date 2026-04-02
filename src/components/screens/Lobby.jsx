@@ -115,6 +115,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
   const [winThreshold, setWinThreshold] = useState(10);
   const [hitsterTimer, setHitsterTimer] = useState(15);
   const networkRef = useRef(null);
+  const actionHandlerRef = useRef(null);
 
   // Catch Spotify OAuth callback on page load
   useEffect(() => {
@@ -140,8 +141,10 @@ function HostLobby({ spotifyClientId, onGameStart }) {
           return [...prev, { id: playerId, name: playerName }];
         });
       },
-      onPlayerAction(_playerId, _msg) {
-        // No player actions handled in lobby
+      onPlayerAction(playerId, msg) {
+        if (actionHandlerRef.current) {
+          actionHandlerRef.current(playerId, msg);
+        }
       },
       onError(_peerId, err) {
         console.error('Host peer error:', err);
@@ -189,6 +192,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
       networkRef,
       isHost: true,
       spotifyToken,
+      actionHandlerRef,
     });
   }
 
@@ -321,6 +325,8 @@ function PlayerLobby({ onGameStart }) {
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
   const networkRef = useRef(null);
+  const stateUpdateRef = useRef(null);
+  const gameStartedRef = useRef(false);
 
   function handleJoin() {
     const trimmedName = name.trim();
@@ -331,12 +337,18 @@ function PlayerLobby({ onGameStart }) {
 
     const player = createPeerPlayer(trimmedCode, trimmedName, {
       onStateUpdate(state) {
-        onGameStart({
-          initialState: state,
-          networkRef,
-          isHost: false,
-          spotifyToken: null,
-        });
+        if (!gameStartedRef.current) {
+          gameStartedRef.current = true;
+          onGameStart({
+            initialState: state,
+            networkRef,
+            isHost: false,
+            spotifyToken: null,
+            stateUpdateRef,
+          });
+        } else if (stateUpdateRef.current) {
+          stateUpdateRef.current(state);
+        }
       },
       onError(err) {
         console.error('Player peer error:', err);
