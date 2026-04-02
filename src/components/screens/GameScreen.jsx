@@ -254,9 +254,12 @@ export default function GameScreen({ gameData }) {
         <PlaybackControls onToggle={handlePlayToggle} isPlaying={isPlaying} />
       )}
 
-      {/* Draggable mystery card — always show when canDrag so user can re-drag */}
-      {(isDragging || canDrag) && (
-        <DraggableMysteryCard isDragging={isDragging} dragPos={dragPos} handlers={handlers} />
+      {/* Floating mystery card — only when nothing placed yet. Once placed, drag from timeline. */}
+      {isDragging && (
+        <DraggableMysteryCard isDragging dragPos={dragPos} handlers={{}} />
+      )}
+      {canDrag && !isDragging && placementIndex === null && (
+        <DraggableMysteryCard isDragging={false} dragPos={dragPos} handlers={handlers} />
       )}
 
       {/* Timeline */}
@@ -267,6 +270,8 @@ export default function GameScreen({ gameData }) {
           activeDropZone={activeDropZone}
           dropZoneRefs={dropZoneRefs}
           placedIndex={placementIndex}
+          isDragging={isDragging}
+          dragHandlers={handlers}
           revealedSong={revealResultData ? { id: state.currentSong.id, result: state.revealResult.playerCorrect ? 'correct' : 'wrong' } : undefined}
         />
       </div>
