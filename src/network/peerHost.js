@@ -2,61 +2,96 @@ import Peer from 'peerjs';
 import { codeTopeerId } from '../utils/gameCode.js';
 import { HOST_MSG, PLAYER_MSG, createMessage, parseMessage } from './protocol.js';
 
-export function createPeerHost(gameCode, { onPlayerJoin, onPlayerAction, onError }) {
+export function createPeerHost(gameCode, { onPlayerJoin, onPlayerAction, onError, onOpen }) {
   const peerId = codeTopeerId(gameCode);
-  const peer = new Peer(peerId);
+  let peer = null;
   const connections = new Map();
+  let destroyed = false;
 
-  peer.on('open', () => {
-    console.log('Host peer open:', peerId);
-  });
+  function setup() {
+    peer = new Peer(peerId);
 
-  peer.on('connection', (conn) => {
-    conn.on('open', () => {
-      conn.on('data', (raw) => {
-        const msg = parseMessage(raw);
-        if (msg.type === PLAYER_MSG.JOIN) {
-          const playerId = conn.peer;
-          connections.set(playerId, conn);
-          onPlayerJoin(playerId, msg.name);
-        } else {
-          onPlayerAction(conn.peer, msg);
-        }
+    peer.on('open', () => {
+      console.log('[Host] peer open:', peerId);
+      if (onOpen) onOpen();
+    });
+
+    peer.on('connection', (conn) => {
+      console.log('[Host] incoming connection from:', conn.peer);
+
+      conn.on('open', () => {
+        console.log('[Host] connection open:', conn.peer);
+
+        conn.on('data', (raw) => {
+          try {
+            const msg = parseMessage(raw);
+            if (msg.type === PLAYER_MSG.JOIN) {
+              connections.set(conn.peer, conn);
+              onPlayerJoin(conn.peer, msg.name);
+            } else {
+              onPlayerAction(conn.peer, msg);
+            }
+          } catch (e) {
+            console.error('[Host] parse error:', e);
+          }
+        });
+      });
+
+      conn.on('close', () => {
+        console.log('[Host] connection closed:', conn.peer);
+        connections.delete(conn.peer);
+      });
+
+      conn.on('error', (err) => {
+        console.error('[Host] conn error:', conn.peer, err);
       });
     });
 
-    conn.on('close', () => {
-      connections.delete(conn.peer);
+    peer.on('error', (err) => {
+      console.error('[Host] peer error:', err.type, err.message);
+      if (err.type === 'unavailable-id') {
+        // Stale peer ID — destroy and retry after short delay
+        console.log('[Host] peer ID taken, retrying...');
+        peer.destroy();
+        if (!destroyed) {
+          setTimeout(setup, 1000);
+        }
+      } else {
+        onError(null, err);
+      }
     });
 
-    conn.on('error', (err) => {
-      onError(conn.peer, err);
+    peer.on('disconnected', () => {
+      if (!destroyed) {
+        console.log('[Host] reconnecting to signaling...');
+        peer.reconnect();
+      }
     });
-  });
+  }
 
-  peer.on('error', (err) => {
-    console.error('Host peer error:', err);
-    onError(null, err);
-  });
+  setup();
 
   return {
     broadcast(state) {
       const msg = createMessage(HOST_MSG.STATE_UPDATE, { state });
-      for (const conn of connections.values()) {
-        if (conn.open) conn.send(msg);
+      for (const [id, conn] of connections.entries()) {
+        try {
+          if (conn.open) conn.send(msg);
+        } catch (e) {
+          console.error('[Host] broadcast error:', id, e);
+        }
       }
     },
     sendTo(playerId, type, payload) {
       const conn = connections.get(playerId);
-      if (conn && conn.open) {
-        conn.send(createMessage(type, payload));
-      }
+      if (conn?.open) conn.send(createMessage(type, payload));
     },
     getConnectedPlayerIds() {
       return [...connections.keys()];
     },
     destroy() {
-      peer.destroy();
+      destroyed = true;
+      if (peer) peer.destroy();
     },
   };
 }

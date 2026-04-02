@@ -1,12 +1,8 @@
-const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0/1/I to avoid confusion
 const PREFIX = 'hitster-';
 
 export function generateGameCode() {
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += CHARS[Math.floor(Math.random() * CHARS.length)];
-  }
-  return code;
+  // 4-digit numeric code (1000-9999)
+  return String(1000 + Math.floor(Math.random() * 9000));
 }
 
 export function codeTopeerId(code) {

@@ -16,7 +16,7 @@ import GameOver from './GameOver.jsx';
 import Button from '../shared/Button.jsx';
 
 export default function GameScreen({ gameData }) {
-  const { initialState, networkRef, isHost, spotifyToken, actionHandlerRef, stateUpdateRef, gameCode } = gameData;
+  const { initialState, networkRef, isHost, spotifyToken, actionHandlerRef, stateUpdateRef, gameCode, playerId: passedPlayerId } = gameData;
 
   const [hostState, hostDispatch] = useReducer(gameReducer, initialState);
   const [playerState, setPlayerState] = useState(initialState);
@@ -27,8 +27,8 @@ export default function GameScreen({ gameData }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const dropZoneRefs = useRef([]);
 
-  // Identity
-  const myId = isHost ? 'host' : networkRef.current?.getPlayerId();
+  // Identity — use passed playerId (stable) instead of getPlayerId() (async)
+  const myId = isHost ? 'host' : (passedPlayerId || networkRef.current?.getPlayerId());
   const currentPlayer = state.players[state.currentPlayerIndex];
   const currentPlayerName = currentPlayer?.name ?? '';
   const isMyTurn = currentPlayer?.id === myId;

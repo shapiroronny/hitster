@@ -242,21 +242,29 @@ function PlayerLobby({ onGameStart }) {
       onStateUpdate(state) {
         if (!gameStartedRef.current) {
           gameStartedRef.current = true;
+          // Pass playerId so GameScreen doesn't rely on getPlayerId() timing
+          const myPeerId = player.getPlayerId();
           onGameStart({
             initialState: state,
             networkRef,
             isHost: false,
             spotifyToken: null,
             stateUpdateRef,
+            playerId: myPeerId,
           });
         } else if (stateUpdateRef.current) {
           stateUpdateRef.current(state);
         }
       },
+      onConnected() {
+        console.log('[PlayerLobby] connected to host');
+      },
       onError(err) {
         console.error('Player peer error:', err);
         setError(err.message || 'Connection error');
-        setJoined(false);
+        if (!gameStartedRef.current) {
+          setJoined(false);
+        }
       },
     });
 
@@ -296,13 +304,15 @@ function PlayerLobby({ onGameStart }) {
         <label className="block text-sm text-[#a8dadc] mb-2 font-semibold" htmlFor="game-code">Game code</label>
         <input
           id="game-code"
-          className="text-lg py-3.5 px-4 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full max-w-xs outline-none uppercase tracking-[0.15em]"
-          type="text"
-          placeholder="XXXXXX"
+          className="text-2xl py-3.5 px-4 rounded-[10px] border-2 border-[#457b9d] bg-[#16213e] text-[#eee] w-full max-w-xs outline-none tracking-[0.3em] text-center"
+          type="tel"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          placeholder="0000"
           value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
           onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-          maxLength={6}
+          maxLength={4}
         />
       </div>
 
@@ -312,7 +322,7 @@ function PlayerLobby({ onGameStart }) {
 
       <Button
         variant="secondary"
-        disabled={!name.trim() || !code.trim()}
+        disabled={!name.trim() || code.length !== 4}
         onClick={handleJoin}
       >
         Join
