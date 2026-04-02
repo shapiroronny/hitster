@@ -1,25 +1,22 @@
 import React from 'react';
-import Button from '../shared/Button.jsx';
 
-export default function PlaybackControls({ onPlay, onPause, onResume, isPlaying }) {
-  if (!isPlaying) {
-    return (
-      <div className="flex justify-center py-2">
-        <Button onClick={onPlay} variant="primary" className="!max-w-[150px]">
-          Play Song
-        </Button>
-      </div>
-    );
-  }
-
+export default function PlaybackControls({ onToggle, isPlaying }) {
   return (
-    <div className="flex gap-2.5 justify-center py-2">
-      <Button onClick={onPause} variant="secondary" className="!max-w-[150px]">
-        Pause
-      </Button>
-      <Button onClick={onResume} variant="primary" className="!max-w-[150px]">
-        Resume
-      </Button>
+    <div className="flex justify-center py-2 shrink-0">
+      <button
+        onClick={onToggle}
+        className="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl transition-all active:scale-90 shadow-lg"
+        style={{
+          background: isPlaying
+            ? 'linear-gradient(135deg, #457b9d, #3a6d8c)'
+            : 'linear-gradient(135deg, #e63946, #d62839)',
+          boxShadow: isPlaying
+            ? '0 4px 16px rgba(69,123,157,0.4)'
+            : '0 4px 16px rgba(230,57,70,0.4)',
+        }}
+      >
+        {isPlaying ? '⏸' : '▶'}
+      </button>
     </div>
   );
 }

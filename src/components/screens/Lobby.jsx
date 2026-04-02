@@ -93,6 +93,7 @@ function HostLobby({ spotifyClientId, onGameStart }) {
       isHost: true,
       spotifyToken,
       actionHandlerRef,
+      gameCode,
     });
   }
 
