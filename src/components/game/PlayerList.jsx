@@ -26,10 +26,10 @@ export default function PlayerList({ players, currentPlayerIndex }) {
             }}
           >
             <div style={{ color: '#eee', fontWeight: 600, fontSize: '0.85rem' }}>
-              {player.id}
+              {player.name}
             </div>
             <div style={{ color: '#aaa', fontSize: '0.75rem', marginTop: 2 }}>
-              {player.timeline.length} cards | {player.tokens} tokens
+              {player.timeline.length - 1} cards | {player.tokens} tokens
             </div>
           </div>
         );

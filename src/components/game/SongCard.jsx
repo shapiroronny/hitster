@@ -49,13 +49,13 @@ export function SongCard({ song, isBack, result }) {
       }}
     >
       <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#fff' }}>
-        {song?.year}
+        {song?.y}
       </span>
       <span style={{ fontSize: '0.8rem', color: '#ccc', marginTop: 2 }}>
-        {song?.title}
+        {song?.t}
       </span>
       <span style={{ fontSize: '0.7rem', color: '#999', marginTop: 1 }}>
-        {song?.artist}
+        {song?.a}
       </span>
     </div>
   );
