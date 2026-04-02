@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import RoleSelect from './components/screens/RoleSelect.jsx';
 import Lobby from './components/screens/Lobby.jsx';
 import GameScreen from './components/screens/GameScreen.jsx';
@@ -24,9 +24,23 @@ export default function App({ spotifyClientId }) {
     setScreen(SCREENS.GAME);
   }
 
+  // Restore a saved game (host-only, no network — local single-device resume)
+  function handleRestore(savedState) {
+    const networkRef = { current: { broadcast() {}, sendTo() {}, getConnectedPlayerIds() { return []; }, destroy() {} } };
+    const actionHandlerRef = { current: null };
+    setGameData({
+      initialState: savedState,
+      networkRef,
+      isHost: true,
+      spotifyToken: null, // Will need to re-auth Spotify
+      actionHandlerRef,
+    });
+    setScreen(SCREENS.GAME);
+  }
+
   switch (screen) {
     case SCREENS.ROLE_SELECT:
-      return <RoleSelect onSelect={handleRoleSelect} />;
+      return <RoleSelect onSelect={handleRoleSelect} onRestore={handleRestore} />;
     case SCREENS.LOBBY:
       return (
         <Lobby

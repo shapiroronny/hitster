@@ -18,9 +18,10 @@ import Button from '../shared/Button.jsx';
 const screenStyle = {
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100vh',
-  background: '#0f3460',
-  color: '#eee',
+  height: '100%',
+  background: 'linear-gradient(180deg, #0a0a1a 0%, #12122e 100%)',
+  color: '#f0f0f0',
+  overflow: 'hidden',
 };
 
 const centerRowStyle = {
@@ -28,6 +29,7 @@ const centerRowStyle = {
   justifyContent: 'center',
   padding: '8px 16px',
   gap: 10,
+  flexShrink: 0,
 };
 
 export default function GameScreen({ gameData }) {

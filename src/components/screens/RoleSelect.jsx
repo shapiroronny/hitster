@@ -1,56 +1,46 @@
 import React from 'react';
 import Button from '../shared/Button.jsx';
+import { loadGameState } from '../../persistence/storage.js';
 
-const containerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
-  background: '#0f3460',
-  padding: '24px',
-  boxSizing: 'border-box',
-};
+export default function RoleSelect({ onSelect, onRestore }) {
+  const savedGame = loadGameState();
 
-const titleStyle = {
-  fontSize: '3rem',
-  fontWeight: 800,
-  color: '#e63946',
-  letterSpacing: '0.15em',
-  margin: 0,
-  marginBottom: '12px',
-};
-
-const subtitleStyle = {
-  fontSize: '1.1rem',
-  color: '#a8dadc',
-  margin: 0,
-  marginBottom: '48px',
-  textAlign: 'center',
-};
-
-const buttonsStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '16px',
-  width: '100%',
-  maxWidth: '320px',
-  alignItems: 'center',
-};
-
-export default function RoleSelect({ onSelect }) {
   return (
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>HITSTER</h1>
-      <p style={subtitleStyle}>Guess the year. Build your timeline.</p>
-      <div style={buttonsStyle}>
-        <Button variant="primary" onClick={() => onSelect('host')}>
-          Host Game
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      gap: 20,
+      padding: 24,
+      background: 'linear-gradient(180deg, #0a0a1a 0%, #1a1a3e 100%)',
+    }}>
+      <h1 style={{
+        fontSize: '3.5rem',
+        fontWeight: 900,
+        letterSpacing: '0.08em',
+        background: 'linear-gradient(135deg, #e63946, #9d4edd)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        marginBottom: 4,
+      }}>
+        HITSTER
+      </h1>
+      <p style={{ fontSize: '1rem', color: '#888', marginBottom: 32 }}>
+        Guess the year. Build your timeline.
+      </p>
+
+      {savedGame && (
+        <Button onClick={() => onRestore(savedGame)} variant="success" style={{ marginBottom: 8 }}>
+          Resume Game ({savedGame.players?.length} players, round {savedGame.drawIndex || '?'})
         </Button>
-        <Button variant="secondary" onClick={() => onSelect('player')}>
-          Join Game
-        </Button>
-      </div>
+      )}
+
+      <Button onClick={() => onSelect('host')}>Host New Game</Button>
+      <Button onClick={() => onSelect('player')} variant="secondary">
+        Join Game
+      </Button>
     </div>
   );
 }
