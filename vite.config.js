@@ -7,14 +7,16 @@ export default defineConfig({
     lib: {
       entry: 'src/main.jsx',
       name: 'Hitster',
-      fileName: 'hitster',
+      fileName: () => 'hitster.js',
       formats: ['iife'],
     },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
+        assetFileNames: 'hitster.[ext]',
       },
     },
+    cssCodeSplit: false,
   },
   test: {
     environment: 'node',
