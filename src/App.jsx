@@ -29,10 +29,12 @@ export default function App({ spotifyClientId }) {
     setScreen(SCREENS.GAME);
   }
 
-  // Practice mode — single player, no Spotify, no network
+  const isTestMode = new URLSearchParams(window.location.search).has('test');
+
+  // Practice mode — 2 fake players, no Spotify, no network. Simulates real game.
   function handlePractice() {
     const initialState = createInitialState({
-      players: [{ id: 'host', name: 'You' }],
+      players: [{ id: 'host', name: 'Player 1' }, { id: 'p2', name: 'Player 2' }],
       winThreshold: 10,
       hitsterTimer: 15,
       seed: Date.now(),
@@ -61,7 +63,7 @@ export default function App({ spotifyClientId }) {
 
   switch (screen) {
     case SCREENS.ROLE_SELECT:
-      return <RoleSelect onSelect={handleRoleSelect} onRestore={handleRestore} onPractice={handlePractice} />;
+      return <RoleSelect onSelect={handleRoleSelect} onRestore={handleRestore} onPractice={isTestMode ? handlePractice : null} />;
     case SCREENS.LOBBY:
       return (
         <Lobby

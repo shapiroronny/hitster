@@ -20,9 +20,11 @@ export default function RoleSelect({ onSelect, onRestore, onPractice }) {
         </Button>
       )}
 
-      <Button onClick={onPractice} variant="success">
-        Practice (Solo)
-      </Button>
+      {onPractice && (
+        <Button onClick={onPractice} variant="ghost">
+          Practice (Test)
+        </Button>
+      )}
       <Button onClick={() => onSelect('host')}>Host New Game</Button>
       <Button onClick={() => onSelect('player')} variant="secondary">
         Join Game

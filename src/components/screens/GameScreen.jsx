@@ -34,7 +34,6 @@ export default function GameScreen({ gameData }) {
   const isMyTurn = currentPlayer?.id === myId;
   const myPlayerIndex = state.players.findIndex((p) => p.id === myId);
   const myPlayer = myPlayerIndex >= 0 ? state.players[myPlayerIndex] : null;
-  const isSoloGame = state.players.length === 1;
   const hasSpotify = spotifyReady && spotifyToken;
 
   // --- HOST: wire up action handler ---
@@ -93,12 +92,12 @@ export default function GameScreen({ gameData }) {
 
   // --- HOST: auto-reveal after hitster timer ---
   useEffect(() => {
-    if (!isHost || state.phase !== PHASES.HITSTER_WINDOW || isSoloGame) return;
+    if (!isHost || state.phase !== PHASES.HITSTER_WINDOW) return;
     const timer = setTimeout(() => {
       hostDispatch({ type: 'REVEAL' });
     }, (state.hitsterTimer ?? 15) * 1000);
     return () => clearTimeout(timer);
-  }, [isHost, state.phase, state.hitsterTimer, isSoloGame]);
+  }, [isHost, state.phase, state.hitsterTimer]);
 
   // --- Drag and drop ---
   const handleDrop = useCallback((index) => {
@@ -122,7 +121,6 @@ export default function GameScreen({ gameData }) {
   const canHitster =
     state.phase === PHASES.HITSTER_WINDOW &&
     !isMyTurn &&
-    !isSoloGame &&
     state.hitster === null &&
     myPlayer &&
     myPlayer.tokens > 0;
@@ -161,9 +159,6 @@ export default function GameScreen({ gameData }) {
     if (placementIndex === null) return;
     if (isHost) {
       hostDispatch({ type: 'LOCK_PLACEMENT', playerId: myId, insertIndex: placementIndex });
-      if (isSoloGame) {
-        setTimeout(() => hostDispatch({ type: 'REVEAL' }), 300);
-      }
     } else {
       networkRef.current?.send(PLAYER_MSG.LOCK_PLACEMENT, { insertIndex: placementIndex });
     }
@@ -332,16 +327,13 @@ export default function GameScreen({ gameData }) {
         <RevealResult revealResult={revealResultData} />
       )}
 
-      {/* Token challenge (multiplayer REVEAL) */}
-      {isHost && state.phase === PHASES.REVEAL && !isSoloGame && (
+      {/* Token challenge (REVEAL phase) */}
+      {isHost && state.phase === PHASES.REVEAL && (
         <TokenChallenge playerName={currentPlayerName} onAward={handleAwardToken} />
       )}
 
-      {/* Next Turn (solo REVEAL or after TOKEN_CHALLENGE) */}
-      {isHost && (
-        (state.phase === PHASES.REVEAL && isSoloGame) ||
-        state.phase === PHASES.TOKEN_CHALLENGE
-      ) && (
+      {/* Next Turn (after TOKEN_CHALLENGE) */}
+      {isHost && state.phase === PHASES.TOKEN_CHALLENGE && (
         <div className="flex justify-center py-2 px-4 shrink-0">
           <Button variant="primary" onClick={handleNextTurn} className="!max-w-[200px]">
             Next Turn
