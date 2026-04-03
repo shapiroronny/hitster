@@ -56,9 +56,9 @@ function HostLobby({ spotifyClientId, onGameStart, practice }) {
 
     networkRef.current = host;
 
-    return () => {
-      host.destroy();
-    };
+    // DO NOT destroy on unmount — the peer must survive the Lobby→GameScreen transition.
+    // GameScreen uses the same networkRef to broadcast state updates.
+    // Cleanup happens when the browser tab closes or a new game starts.
   }, [nameConfirmed, gameCode]);
 
   function handleConfirmName() {
