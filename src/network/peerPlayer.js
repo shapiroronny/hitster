@@ -7,8 +7,9 @@ export function createPeerPlayer(gameCode, playerName, { onFirstState, onError, 
   let hostConn = null;
   let playerId = null;
   let destroyed = false;
-  let stateHandler = null; // Set by GameScreen after mount
+  let stateHandler = null;
   let firstStateFired = false;
+  let reconnectTimer = null;
   const hostPeerId = codeTopeerId(gameCode);
 
   function handleStateUpdate(state) {
@@ -19,22 +20,20 @@ export function createPeerPlayer(gameCode, playerName, { onFirstState, onError, 
     } else if (stateHandler) {
       stateHandler(state);
     } else {
-      console.warn('[Player] state update received but no handler set yet');
+      console.warn('[Player] state update but no handler yet');
     }
   }
 
-  peer.on('open', (id) => {
-    playerId = id;
-    console.log('[Player] peer open:', id, '→ connecting to', hostPeerId);
-    hostConn = peer.connect(hostPeerId, { reliable: true });
+  function wireConnection(conn) {
+    hostConn = conn;
 
-    hostConn.on('open', () => {
+    conn.on('open', () => {
       console.log('[Player] connected to host, sending JOIN');
-      hostConn.send(createMessage(PLAYER_MSG.JOIN, { name: playerName }));
+      conn.send(createMessage(PLAYER_MSG.JOIN, { name: playerName }));
       if (onConnected) onConnected();
     });
 
-    hostConn.on('data', (raw) => {
+    conn.on('data', (raw) => {
       try {
         const msg = parseMessage(raw);
         if (msg.type === 'STATE_UPDATE') {
@@ -45,21 +44,48 @@ export function createPeerPlayer(gameCode, playerName, { onFirstState, onError, 
       }
     });
 
-    hostConn.on('close', () => {
-      console.log('[Player] connection closed');
-      if (!destroyed) onError(new Error('Disconnected from host'));
+    conn.on('close', () => {
+      console.log('[Player] connection closed, will retry...');
+      if (!destroyed) scheduleReconnect();
     });
 
-    hostConn.on('error', (err) => {
+    conn.on('error', (err) => {
       console.error('[Player] connection error:', err);
-      onError(err);
+      if (!destroyed) scheduleReconnect();
     });
+  }
+
+  function connectToHost() {
+    if (destroyed || !peer.open) return;
+    console.log('[Player] connecting to', hostPeerId);
+    const conn = peer.connect(hostPeerId, { reliable: true });
+    wireConnection(conn);
+  }
+
+  function scheduleReconnect() {
+    if (destroyed || reconnectTimer) return;
+    console.log('[Player] reconnecting in 2s...');
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      connectToHost();
+    }, 2000);
+  }
+
+  peer.on('open', (id) => {
+    playerId = id;
+    console.log('[Player] peer open:', id);
+    connectToHost();
   });
 
   peer.on('error', (err) => {
     console.error('[Player] peer error:', err.type, err.message);
     if (err.type === 'peer-unavailable') {
-      onError(new Error('Game not found. Check the code and try again.'));
+      // Host not found — might not be ready yet, retry a few times
+      if (!firstStateFired && !destroyed) {
+        scheduleReconnect();
+      } else if (!firstStateFired) {
+        onError(new Error('Game not found. Check the code and try again.'));
+      }
     } else {
       onError(err);
     }
@@ -83,12 +109,12 @@ export function createPeerPlayer(gameCode, playerName, { onFirstState, onError, 
     getPlayerId() {
       return playerId;
     },
-    // Called by GameScreen to receive ongoing state updates
     setOnStateUpdate(fn) {
       stateHandler = fn;
     },
     destroy() {
       destroyed = true;
+      clearTimeout(reconnectTimer);
       peer.destroy();
     },
   };
