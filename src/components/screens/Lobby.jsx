@@ -239,33 +239,24 @@ function PlayerLobby({ onGameStart }) {
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
   const networkRef = useRef(null);
-  const stateUpdateRef = useRef(null);
-  const gameStartedRef = useRef(false);
 
   function handleJoin() {
     const trimmedName = name.trim();
-    const trimmedCode = code.trim().toUpperCase();
+    const trimmedCode = code.trim();
     if (!trimmedName || !trimmedCode) return;
 
     setError(null);
 
     const player = createPeerPlayer(trimmedCode, trimmedName, {
-      onStateUpdate(state) {
-        if (!gameStartedRef.current) {
-          gameStartedRef.current = true;
-          // Pass playerId so GameScreen doesn't rely on getPlayerId() timing
-          const myPeerId = player.getPlayerId();
-          onGameStart({
-            initialState: state,
-            networkRef,
-            isHost: false,
-            spotifyToken: null,
-            stateUpdateRef,
-            playerId: myPeerId,
-          });
-        } else if (stateUpdateRef.current) {
-          stateUpdateRef.current(state);
-        }
+      onFirstState(state) {
+        const myPeerId = player.getPlayerId();
+        onGameStart({
+          initialState: state,
+          networkRef,
+          isHost: false,
+          spotifyToken: null,
+          playerId: myPeerId,
+        });
       },
       onConnected() {
         console.log('[PlayerLobby] connected to host');
@@ -273,9 +264,6 @@ function PlayerLobby({ onGameStart }) {
       onError(err) {
         console.error('Player peer error:', err);
         setError(err.message || 'Connection error');
-        if (!gameStartedRef.current) {
-          setJoined(false);
-        }
       },
     });
 

@@ -16,7 +16,7 @@ import GameOver from './GameOver.jsx';
 import Button from '../shared/Button.jsx';
 
 export default function GameScreen({ gameData }) {
-  const { initialState, networkRef, isHost, spotifyToken, actionHandlerRef, stateUpdateRef, gameCode, playerId: passedPlayerId } = gameData;
+  const { initialState, networkRef, isHost, spotifyToken, actionHandlerRef, gameCode, playerId: passedPlayerId } = gameData;
 
   const [hostState, hostDispatch] = useReducer(gameReducer, initialState);
   const [playerState, setPlayerState] = useState(initialState);
@@ -74,12 +74,23 @@ export default function GameScreen({ gameData }) {
     saveGameState(hostState);
   }, [isHost, hostState, networkRef]);
 
-  // --- PLAYER: wire up state updates ---
+  // --- PLAYER: wire up state updates via peerPlayer.setOnStateUpdate ---
   useEffect(() => {
-    if (isHost || !stateUpdateRef) return;
-    stateUpdateRef.current = setPlayerState;
-    return () => { stateUpdateRef.current = null; };
-  }, [isHost, stateUpdateRef]);
+    if (isHost) return;
+    const player = networkRef.current;
+    if (player && player.setOnStateUpdate) {
+      console.log('[GameScreen] wiring player state handler');
+      player.setOnStateUpdate((newState) => {
+        console.log('[GameScreen] received state update, phase:', newState.phase);
+        setPlayerState(newState);
+      });
+    }
+    return () => {
+      if (player && player.setOnStateUpdate) {
+        player.setOnStateUpdate(null);
+      }
+    };
+  }, [isHost, networkRef]);
 
   // --- HOST: init Spotify ---
   useEffect(() => {
